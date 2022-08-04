@@ -85,7 +85,20 @@ SUPPORTED_BOARDS = (
         examples = {
             "ethernet": Path("example/imx8mm/passive_server")
         }
-    )
+    ),
+    BoardInfo(
+        name="qemu_arm_virt",
+        gcc_cpu="cortex-a53",
+        loader_link_address=0x70000000,
+        kernel_options = {
+            "KernelPlatform": "qemu-arm-virt",
+            "KernelIsMCS": True,
+            "KernelArmExportPCNTUser": True,
+        },
+        examples = {
+            "hello": Path("example/qemu_arm_virt/hello")
+        }
+    ),
 )
 
 SUPPORTED_CONFIGS = (
