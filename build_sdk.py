@@ -120,6 +120,19 @@ SUPPORTED_BOARDS = (
             "hello": Path("example/imx8mq_evk/hello")
         }
     ),
+    BoardInfo(
+        name="qemu_arm_virt",
+        gcc_cpu="cortex-a53",
+        loader_link_address=0x70000000,
+        kernel_options = {
+            "KernelPlatform": "qemu-arm-virt",
+            "KernelIsMCS": True,
+            "KernelArmExportPCNTUser": True,
+        },
+        examples = {
+            "hello": Path("example/qemu_arm_virt/hello")
+        }
+    ),
 )
 
 SUPPORTED_CONFIGS = (
