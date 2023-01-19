@@ -456,11 +456,11 @@ def main() -> None:
 
     tool_target = root_dir / "bin" / "microkit"
 
-    if not tool_target.exists():
-        test_tool()
-        build_tool(tool_target, args.tool_target_triple)
+    # if not tool_target.exists():
+    #     test_tool()
+    #     build_tool(tool_target, args.tool_target_triple)
 
-    build_doc(root_dir)
+    # build_doc(root_dir)
 
     build_dir = Path("build")
     for board in SUPPORTED_BOARDS:
