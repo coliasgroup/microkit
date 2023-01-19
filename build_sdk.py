@@ -445,13 +445,13 @@ def main() -> None:
         tar.add(root_dir, arcname=root_dir.name, filter=tar_filter)
 
     # Build the source tar
-    process = popen("git ls-files")
-    filenames = [Path(fn.strip()) for fn in process.readlines()]
-    process.close()
-    source_prefix = Path(f"{NAME}-source-{VERSION}")
-    with tar_open(source_tar_file, "w:gz") as tar:
-        for filename in filenames:
-            tar.add(filename, arcname=source_prefix / filename, filter=tar_filter)
+    # process = popen("git ls-files")
+    # filenames = [Path(fn.strip()) for fn in process.readlines()]
+    # process.close()
+    # source_prefix = Path(f"{NAME}-source-{VERSION}")
+    # with tar_open(source_tar_file, "w:gz") as tar:
+    #     for filename in filenames:
+    #         tar.add(filename, arcname=source_prefix / filename, filter=tar_filter)
 
 
 if __name__ == "__main__":
