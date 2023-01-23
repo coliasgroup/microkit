@@ -85,7 +85,7 @@ SUPPORTED_BOARDS = (
         examples = {
             "hello": Path("example/qemu_arm_virt/hello")
         }
-    )
+    ),
 )
 
 SUPPORTED_CONFIGS = (
