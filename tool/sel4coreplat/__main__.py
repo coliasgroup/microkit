@@ -988,7 +988,11 @@ def build_system(
             if not segment.loadable:
                 continue
 
-            regions.append(Region(f"PD-ELF {pd.name}-{seg_idx}", phys_addr_next, segment.data))
+            base_vaddr = round_down(segment.virt_addr, kernel_config.minimum_page_size)
+            padding_len = segment.virt_addr - base_vaddr
+            padding = bytearray([0] * padding_len)
+
+            regions.append(Region(f"PD-ELF {pd.name}-{seg_idx}", phys_addr_next, padding + segment.data))
 
             perms = ""
             if segment.is_readable:
@@ -998,7 +1002,6 @@ def build_system(
             if segment.is_executable:
                 perms += "x"
 
-            base_vaddr = round_down(segment.virt_addr, kernel_config.minimum_page_size)
             end_vaddr = round_up(segment.virt_addr + segment.mem_size, kernel_config.minimum_page_size)
             aligned_size = end_vaddr - base_vaddr
             name = f"ELF:{pd.name}-{seg_idx}"
