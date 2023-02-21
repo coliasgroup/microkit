@@ -227,6 +227,10 @@ def build_sel4(
             copy(p, dest)
             dest.chmod(0o444)
 
+    source_config_path = sel4_build_dir / "gen_config/kernel/gen_config.json"
+    dest_config_path = root_dir / "board" / board.name / config.name / "config.json"
+    copy(source_config_path, dest_config_path)
+
 
 def build_elf_component(
     component_name: str,
