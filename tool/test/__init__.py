@@ -77,7 +77,7 @@ class ProtectionDomainParseTests(ExtendedTestCase):
         self._check_missing("pd_missing_symbol.xml", "symbol", "setvar")
 
     def test_missing_region_paddr(self):
-        self._check_missing("pd_missing_region_paddr.xml", "region_paddr", "setvar")
+        self._check_error("pd_missing_region_paddr.xml", "Exactly one of region_paddr or vaddr must be set at 'setvar'")
 
     def test_duplicate_program_image(self):
         self._check_error("pd_duplicate_program_image.xml", "Error: program_image must only be specified once on element 'program_image': ")
