@@ -275,10 +275,14 @@ def xml2pd(pd_xml: ET.Element) -> ProtectionDomain:
                     raise ValueError("id must be >= 0")
                 irqs.append(SysIrq(irq, id_))
             elif child.tag == "setvar":
-                _check_attrs(child, ("symbol", "region_paddr"))
+                _check_attrs(child, ("symbol", "region_paddr", "vaddr"))
                 symbol = checked_lookup(child, "symbol")
-                region_paddr = checked_lookup(child, "region_paddr")
-                setvars.append(SysSetVar(symbol, region_paddr=region_paddr))
+                region_paddr = child.attrib.get("region_paddr")
+                vaddr_str = child.attrib.get("vaddr")
+                vaddr = None if vaddr_str is None else int(vaddr_str, base=0)
+                if (region_paddr is None) == (vaddr is None):
+                    raise UserError(f"Exactly one of region_paddr or vaddr must be set at '{child.tag}': {child._loc_str}")  # type: ignore
+                setvars.append(SysSetVar(symbol, region_paddr=region_paddr, vaddr=vaddr))
             else:
                 raise UserError(f"Invalid XML element '{child.tag}': {child._loc_str}")  # type: ignore
         except ValueError as e:
