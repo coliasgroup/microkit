@@ -341,22 +341,23 @@ class Sel4Label(IntEnum):
     ARMVSpaceInvalidate_Data = 37
     ARMVSpaceCleanInvalidate_Data = 38
     ARMVSpaceUnify_Instruction = 39
+    ARMSMCCall = 40
     # ARM Page table
-    ARMPageTableMap = 40
-    ARMPageTableUnmap = 41
+    ARMPageTableMap = 41
+    ARMPageTableUnmap = 42
     # ARM Page
-    ARMPageMap = 42
-    ARMPageUnmap = 43
-    ARMPageClean_Data = 44
-    ARMPageInvalidate_Data = 45
-    ARMPageCleanInvalidate_Data = 46
-    ARMPageUnify_Instruction = 47
-    ARMPageGetAddress = 48
+    ARMPageMap = 43
+    ARMPageUnmap = 44
+    ARMPageClean_Data = 45
+    ARMPageInvalidate_Data = 46
+    ARMPageCleanInvalidate_Data = 47
+    ARMPageUnify_Instruction = 48
+    ARMPageGetAddress = 49
     # ARM Asid
-    ARMASIDControlMakePool = 49
-    ARMASIDPoolAssign = 50
+    ARMASIDControlMakePool = 50
+    ARMASIDPoolAssign = 51
     # ARM IRQ
-    ARMIRQIssueIRQHandlerTrigger = 51
+    ARMIRQIssueIRQHandlerTrigger = 52
 
 
 ### Invocations
@@ -814,7 +815,7 @@ def emulate_kernel_boot(
     else:
         raise Exception("Couldn't find appropriate region for initial task kernel objects")
 
-    fixed_cap_count = 0xf
+    fixed_cap_count = 0x10
     sched_control_cap_count = 1
     paging_cap_count = _get_arch_n_paging(initial_task_virt_region)
     page_cap_count = initial_task_virt_region.size // kernel_config.minimum_page_size
