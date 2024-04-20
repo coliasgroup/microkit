@@ -56,98 +56,6 @@ class ConfigInfo:
 
 SUPPORTED_BOARDS = (
     BoardInfo(
-        name="tqma8xqp1gb",
-        gcc_cpu="cortex-a35",
-        loader_link_address=0x80280000,
-        kernel_options={
-            "KernelPlatform": "tqma8xqp1gb",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "ethernet": Path("example/tqma8xqp1gb/ethernet")
-        }
-    ),
-    BoardInfo(
-        name="zcu102",
-        gcc_cpu="cortex-a53",
-        loader_link_address=0x40000000,
-        kernel_options={
-            "KernelPlatform": "zynqmp",
-            "KernelARMPlatform": "zcu102",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "hello": Path("example/zcu102/hello")
-        }
-    ),
-    BoardInfo(
-        name="maaxboard",
-        gcc_cpu="cortex-a53",
-        loader_link_address=0x40480000,
-        kernel_options={
-            "KernelPlatform": "maaxboard",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "hello": Path("example/maaxboard/hello")
-        }
-    ),
-    BoardInfo(
-        name="imx8mm_evk",
-        gcc_cpu="cortex-a53",
-        loader_link_address=0x41000000,
-        kernel_options={
-            "KernelPlatform": "imx8mm-evk",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "passive_server": Path("example/imx8mm_evk/passive_server")
-        }
-    ),
-    BoardInfo(
-        name="imx8mq_evk",
-        gcc_cpu="cortex-a53",
-        loader_link_address=0x41000000,
-        kernel_options={
-            "KernelPlatform": "imx8mq-evk",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "hello": Path("example/imx8mq_evk/hello")
-        }
-    ),
-    BoardInfo(
-        name="odroidc2",
-        gcc_cpu="cortex-a53",
-        loader_link_address=0x20000000,
-        kernel_options={
-            "KernelPlatform": "odroidc2",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "hello": Path("example/odroidc2/hello")
-        }
-    ),
-    BoardInfo(
-        name="odroidc4",
-        gcc_cpu="cortex-a55",
-        loader_link_address=0x20000000,
-        kernel_options={
-            "KernelPlatform": "odroidc4",
-            "KernelIsMCS": True,
-            "KernelArmExportPCNTUser": True,
-        },
-        examples={
-            "timer": Path("example/odroidc4/timer")
-        }
-    ),
-    BoardInfo(
         name="qemu_virt_aarch64",
         gcc_cpu="cortex-a53",
         loader_link_address=0x70000000,
@@ -164,11 +72,6 @@ SUPPORTED_BOARDS = (
 )
 
 SUPPORTED_CONFIGS = (
-    ConfigInfo(
-        name="release",
-        debug=False,
-        kernel_options={},
-    ),
     ConfigInfo(
         name="debug",
         debug=True,
