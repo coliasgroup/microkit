@@ -126,14 +126,14 @@ def get_tool_target_triple() -> str:
 
 def test_tool() -> None:
     r = system(
-        f"cd tool/microkit && cargo test"
+        f"cd tool/microkit && cargo test --frozen"
     )
     assert r == 0
 
 
 def build_tool(tool_target: Path, target_triple: str) -> None:
     r = system(
-        f"cd tool/microkit && cargo build --release --target {target_triple}"
+        f"cd tool/microkit && cargo build --frozen --release --target {target_triple}"
     )
     assert r == 0
 
