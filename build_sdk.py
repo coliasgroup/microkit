@@ -411,6 +411,11 @@ def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("--sel4", type=Path, required=True)
     parser.add_argument("--tool-target-triple", default=get_tool_target_triple(), help="Compile the Microkit tool for this target triple")
+    parser.add_argument("--only-board")
+    parser.add_argument("--only-config")
+    parser.add_argument("--skip-docs", action="store_true")
+    parser.add_argument("--skip-source-tarball", action="store_true")
+
     args = parser.parse_args()
     sel4_dir = args.sel4.expanduser()
     if not sel4_dir.exists():
@@ -425,9 +430,13 @@ def main() -> None:
         root_dir / "board",
     ]
     for board in SUPPORTED_BOARDS:
+        if args.only_board is not None and board.name != args.only_board:
+            continue
         board_dir = root_dir / "board" / board.name
         dir_structure.append(board_dir)
         for config in SUPPORTED_CONFIGS:
+            if args.only_config is not None and config.name != args.only_config:
+                continue
             config_dir = board_dir / config.name
             dir_structure.append(config_dir)
             dir_structure += [
@@ -457,11 +466,16 @@ def main() -> None:
     test_tool()
     build_tool(tool_target, args.tool_target_triple)
 
-    build_doc(root_dir)
+    if not args.skip_docs:
+        build_doc(root_dir)
 
     build_dir = Path("build")
     for board in SUPPORTED_BOARDS:
+        if args.only_board is not None and board.name != args.only_board:
+            continue
         for config in SUPPORTED_CONFIGS:
+            if args.only_config is not None and config.name != args.only_config:
+                continue
             build_sel4(sel4_dir, root_dir, build_dir, board, config)
             loader_defines = [
                 ("LINK_ADDRESS", hex(board.loader_link_address))
@@ -483,18 +497,19 @@ def main() -> None:
                 copy(p, dest)
                 dest.chmod(0o444)
 
-    # At this point we create a tar.gz file
-    with tar_open(tar_file, "w:gz") as tar:
-        tar.add(root_dir, arcname=root_dir.name, filter=tar_filter)
+    if not args.skip_source_tarball:
+        # At this point we create a tar.gz file
+        with tar_open(tar_file, "w:gz") as tar:
+            tar.add(root_dir, arcname=root_dir.name, filter=tar_filter)
 
-    # Build the source tar
-    process = popen("git ls-files")
-    filenames = [Path(fn.strip()) for fn in process.readlines()]
-    process.close()
-    source_prefix = Path(f"{NAME}-source-{VERSION}")
-    with tar_open(source_tar_file, "w:gz") as tar:
-        for filename in filenames:
-            tar.add(filename, arcname=source_prefix / filename, filter=tar_filter)
+        # Build the source tar
+        process = popen("git ls-files")
+        filenames = [Path(fn.strip()) for fn in process.readlines()]
+        process.close()
+        source_prefix = Path(f"{NAME}-source-{VERSION}")
+        with tar_open(source_tar_file, "w:gz") as tar:
+            for filename in filenames:
+                tar.add(filename, arcname=source_prefix / filename, filter=tar_filter)
 
 
 if __name__ == "__main__":
