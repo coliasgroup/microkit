@@ -144,12 +144,8 @@ impl DisjointMemoryRegion {
     }
 
     pub fn insert_region(&mut self, base: u64, end: u64) {
-        let mut insert_idx = self.regions.len();
-        for (idx, region) in self.regions.iter().enumerate() {
-            if end >= region.base {
-                insert_idx = idx;
-            }
-        }
+        let insert_idx = self.regions.iter().take_while(|region| region.end <= base).count();
+
         // FIXME: Should extend here if adjacent rather than
         // inserting now
         self.regions.insert(insert_idx, MemoryRegion::new(base, end));
