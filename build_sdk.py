@@ -463,9 +463,6 @@ def main() -> None:
 
     tool_target = root_dir / "bin" / "microkit"
 
-    test_tool()
-    build_tool(tool_target, args.tool_target_triple)
-
     if not args.skip_docs:
         build_doc(root_dir)
 
