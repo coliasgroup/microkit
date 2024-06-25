@@ -265,10 +265,6 @@ impl ElfFile {
             // the string for each symbol name. It should be possible to turn this into a reference
             // although it might be awkward in order to please the borrow checker.
             let insert = symbols.insert(name.to_string(), sym);
-            // We only care about duplicate symbols if it is a global symbol
-            if insert.is_some() && bind == STB_GLOBAL {
-                return Err(format!("ELF '{}: multiple symbols with name '{}'", path.display(), name));
-            }
             offset += symbol_size;
         }
 
