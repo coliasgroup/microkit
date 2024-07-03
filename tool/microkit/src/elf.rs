@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 //
 
+use std::borrow::Cow;
 use std::fs;
 use std::path::Path;
 use std::collections::HashMap;
@@ -144,9 +145,21 @@ pub struct ElfFile {
 
 impl ElfFile {
     pub fn from_path(path: &Path) -> Result<ElfFile, String> {
+        Self::from_path_with_sup(path, None)
+    }
+
+    pub fn from_path_with_sup(path: &Path, sup_path: Option<&Path>) -> Result<ElfFile, String> {
         let reader = ElfFileReader::from_path(path)?;
+        let reader_for_symbols = match sup_path {
+            Some(sup_path) => {
+                Cow::Owned(ElfFileReader::from_path(sup_path)?)
+            }
+            None => {
+                Cow::Borrowed(&reader)
+            }
+        };
         let segments = reader.segments();
-        let symbols = reader.symbols()?;
+        let symbols = reader_for_symbols.symbols()?;
         Ok(ElfFile {
             word_size: reader.word_size(),
             entry: reader.file_header().entry,
@@ -193,6 +206,7 @@ impl ElfFile {
     }
 }
 
+#[derive(Clone)]
 struct ElfFileReader<'a> {
     path: &'a Path,
     bytes: Vec<u8>,

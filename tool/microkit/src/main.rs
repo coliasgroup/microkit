@@ -700,7 +700,12 @@ fn build_system(kernel_config: &Config,
     for pd in &system.protection_domains {
         match get_full_path(&pd.program_image, search_paths) {
             Some(path) => {
-                let elf = ElfFile::from_path(&path).unwrap();
+                let sup_path = pd.program_image_sup.as_ref().map(|sup| {
+                    get_full_path(&sup, search_paths).ok_or_else(|| {
+                        format!("unable to find program image supplement: '{}'", sup.display())
+                    })
+                }).transpose()?;
+                let elf = ElfFile::from_path_with_sup(&path, sup_path.as_deref()).unwrap();
                 pd_elf_files.push(elf);
             },
             None => return Err(format!("unable to find program image: '{}'", pd.program_image.display()))
