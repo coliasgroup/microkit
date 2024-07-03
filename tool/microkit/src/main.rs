@@ -900,7 +900,7 @@ fn build_system(
     // protection domains
     let mut pd_elf_size = 0;
     for pd_elf in pd_elf_files {
-        for r in phys_mem_regions_from_elf(pd_elf, config.minimum_page_size) {
+        for r in phys_mem_regions_from_elf(&pd_elf, config.minimum_page_size) {
             pd_elf_size += r.size();
         }
     }
@@ -3315,7 +3315,12 @@ fn main() -> Result<(), String> {
     for pd in &system.protection_domains {
         match get_full_path(&pd.program_image, &search_paths) {
             Some(path) => {
-                let elf = ElfFile::from_path(&path).unwrap();
+                let path_for_symbols = pd.program_image_for_symbols.as_ref().map(|path_suffix| {
+                    get_full_path(path_suffix, &search_paths).ok_or_else(|| {
+                        format!("unable to find program image for symbols: '{}'", path_suffix.display())
+                    })
+                }).transpose()?;
+                let elf = ElfFile::from_split_paths(&path, path_for_symbols.as_deref()).unwrap();
                 pd_elf_files.push(elf);
             }
             None => {
