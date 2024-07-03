@@ -5,6 +5,7 @@
 //
 
 use crate::util::bytes_to_struct;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -144,9 +145,21 @@ pub struct ElfFile {
 
 impl ElfFile {
     pub fn from_path(path: &Path) -> Result<ElfFile, String> {
+        Self::from_split_paths(path, None)
+    }
+
+    pub fn from_split_paths(path: &Path, path_for_symbols: Option<&Path>) -> Result<ElfFile, String> {
         let reader = ElfFileReader::from_path(path)?;
+        let reader_for_symbols = match path_for_symbols {
+            Some(path_for_symbols) => {
+                Cow::Owned(ElfFileReader::from_path(path_for_symbols)?)
+            }
+            None => {
+                Cow::Borrowed(&reader)
+            }
+        };
         let segments = reader.segments();
-        let symbols = reader.symbols()?;
+        let symbols = reader_for_symbols.symbols()?;
         Ok(ElfFile {
             word_size: reader.word_size,
             entry: reader.hdr.entry,
