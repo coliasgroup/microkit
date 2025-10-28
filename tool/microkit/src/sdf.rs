@@ -144,6 +144,7 @@ pub enum SysSetVarKind {
     Size { mr: String },
     Vaddr { address: u64 },
     Paddr { region: String },
+    Id { id: u64 },
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -566,7 +567,7 @@ impl ProtectionDomain {
                     maps.push(map);
                 }
                 "irq" => {
-                    check_attributes(xml_sdf, &child, &["irq", "id", "trigger"])?;
+                    check_attributes(xml_sdf, &child, &["irq", "id", "trigger", "setvar_id"])?;
                     let irq = checked_lookup(xml_sdf, &child, "irq")?
                         .parse::<u64>()
                         .unwrap();
@@ -600,6 +601,24 @@ impl ProtectionDomain {
                         // Default the level triggered
                         IrqTrigger::Level
                     };
+
+                    if let Some(setvar_id) = child.attribute("setvar_id") {
+                        // Check that the symbol does not already exist
+                        for setvar in &setvars {
+                            if setvar_id == setvar.symbol {
+                                return Err(value_error(
+                                    xml_sdf,
+                                    &child,
+                                    format!("setvar on symbol '{}' already exists", setvar_id),
+                                ));
+                            }
+                        }
+
+                        setvars.push(SysSetVar {
+                            symbol: setvar_id.to_string(),
+                            kind: SysSetVarKind::Id { id: id as u64 },
+                        });
+                    }
 
                     let irq = SysIrq {
                         irq,
@@ -863,7 +882,7 @@ impl ChannelEnd {
     fn from_xml<'a>(
         xml_sdf: &'a XmlSystemDescription,
         node: &'a roxmltree::Node,
-        pds: &[ProtectionDomain],
+        pds: &mut [ProtectionDomain],
     ) -> Result<ChannelEnd, String> {
         let node_name = node.tag_name().name();
         if node_name != "end" {
@@ -875,7 +894,7 @@ impl ChannelEnd {
             ));
         }
 
-        check_attributes(xml_sdf, node, &["pd", "id", "pp", "notify"])?;
+        check_attributes(xml_sdf, node, &["pd", "id", "pp", "notify", "setvar_id"])?;
         let end_pd = checked_lookup(xml_sdf, node, "pd")?;
         let end_id = checked_lookup(xml_sdf, node, "id")?.parse::<i64>().unwrap();
 
@@ -912,6 +931,28 @@ impl ChannelEnd {
             })?;
 
         if let Some(pd_idx) = pds.iter().position(|pd| pd.name == end_pd) {
+            let pd = &mut pds[pd_idx];
+
+            if let Some(setvar_id) = node.attribute("setvar_id") {
+                // Check that the symbol does not already exist
+                for setvar in &pd.setvars {
+                    if setvar_id == setvar.symbol {
+                        return Err(value_error(
+                            xml_sdf,
+                            &node,
+                            format!("setvar on symbol '{}' already exists", setvar_id),
+                        ));
+                    }
+                }
+
+                pd.setvars.push(SysSetVar {
+                    symbol: setvar_id.to_string(),
+                    kind: SysSetVarKind::Id {
+                        id: end_id.try_into().unwrap(),
+                    },
+                });
+            }
+
             Ok(ChannelEnd {
                 pd: pd_idx,
                 id: end_id.try_into().unwrap(),
@@ -935,7 +976,7 @@ impl Channel {
     fn from_xml<'a>(
         xml_sdf: &'a XmlSystemDescription,
         node: &'a roxmltree::Node,
-        pds: &[ProtectionDomain],
+        pds: &mut [ProtectionDomain],
     ) -> Result<Channel, String> {
         check_attributes(xml_sdf, node, &[])?;
 
@@ -1250,10 +1291,10 @@ pub fn parse(filename: &str, xml: &str, config: &Config) -> Result<SystemDescrip
         }
     }
 
-    let pds = pd_flatten(&xml_sdf, root_pds)?;
+    let mut pds = pd_flatten(&xml_sdf, root_pds)?;
 
     for node in channel_nodes {
-        channels.push(Channel::from_xml(&xml_sdf, &node, &pds)?);
+        channels.push(Channel::from_xml(&xml_sdf, &node, &mut pds)?);
     }
 
     // Now that we have parsed everything in the system description we can validate any

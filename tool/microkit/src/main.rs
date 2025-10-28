@@ -2775,6 +2775,7 @@ fn build_system(
 
                         mr_pages[mr][0].phys_addr
                     }
+                    sdf::SysSetVarKind::Id { id } => *id,
                 })
                 .collect()
         })
