@@ -783,6 +783,7 @@ def build_initialiser(
 def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("--sel4", type=Path, required=True)
+    # XXX this makes it easy to have different version between initializer and tool
     parser.add_argument("--rust-sel4", type=Path, required=False, default=None, help="Compile capDL initialiser from local repository")
     parser.add_argument("--tool-target-triple", default=get_tool_target_triple(), help="Compile the Microkit tool for this target triple")
     parser.add_argument("--llvm", action="store_true", help="Cross-compile seL4 and Microkit's run-time targets with LLVM")
