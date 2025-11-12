@@ -19,7 +19,22 @@ roxmltree = "0.19.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.117"
 postcard = { version = "1.0.2", default-features = false, features = ["alloc"] }
-sel4-capdl-initializer-types = { git = "https://github.com/au-ts/rust-seL4", rev = "0186e53991b48118b39d9a048c526baabdf6f5d4", features = ["alloc", "serde", "deflate", "std"] }
+sel4-capdl-initializer-types = { workspace = true }
 
-[profile.release]
+[profile.release.package.microkit-tool]
 strip = true
+
+[workspace]
+resolver = "3"
+members = [
+    "initialiser",
+]
+
+[workspace.dependencies.sel4-capdl-initializer]
+git = "https://github.com/nspin/rust-seL4"
+rev = "6918a96f8bcbf7b4f655c0986089905f906701db"
+
+[workspace.dependencies.sel4-capdl-initializer-types]
+git = "https://github.com/nspin/rust-seL4"
+rev = "6918a96f8bcbf7b4f655c0986089905f906701db"
+features = ["alloc", "serde", "deflate", "std"]

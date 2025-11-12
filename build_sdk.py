@@ -503,14 +503,14 @@ def get_tool_target_triple() -> str:
 
 def test_tool() -> None:
     r = system(
-        f"cd tool/microkit && cargo test"
+        f"cd tool/microkit && cargo test -p microkit-tool"
     )
     assert r == 0
 
 
 def build_tool(tool_target: Path, target_triple: str) -> None:
     r = system(
-        f"cd tool/microkit && cargo build --release --locked --target {target_triple}"
+        f"cd tool/microkit && cargo build --release --locked --target {target_triple} -p microkit-tool"
     )
     assert r == 0
 
@@ -760,27 +760,18 @@ def build_initialiser(
     component_build_dir = build_dir / board.name / config.name / component_name
     component_build_dir.mkdir(exist_ok=True, parents=True)
 
-    if custom_rust_sel4_dir is None:
-        capdl_init_elf = component_build_dir / "bin" / "sel4-capdl-initializer.elf"
-        cmd = f"""
+    capdl_init_elf = Path("tool/microkit") / rust_target_dir / cargo_target / "release" / "initialiser.elf"
+    r = system(f"""
+        cd tool/microkit && \
             RUSTC_BOOTSTRAP=1 \
             RUST_TARGET_PATH={rust_target_path} SEL4_PREFIX={sel4_src_dir.absolute()} \
-            cargo install {cargo_cross_options} \
+            cargo build {cargo_cross_options} \
             --target {cargo_target} \
             --locked \
-            --git https://github.com/au-ts/rust-seL4 --branch capdl_dev sel4-capdl-initializer --rev 0186e53991b48118b39d9a048c526baabdf6f5d4 \
             --target-dir {rust_target_dir} \
-            --root {component_build_dir}
-        """
-    else:
-        capdl_init_elf = custom_rust_sel4_dir / "target" / cargo_target / "release" / "sel4-capdl-initializer.elf"
-        cmd = f"""
-            cd {custom_rust_sel4_dir} && SEL4_PREFIX={sel4_src_dir.absolute()} \
-            cargo build {cargo_cross_options} --target {cargo_target} \
-            --release -p sel4-capdl-initializer
-        """
-
-    r = system(cmd)
+            --release \
+            -p initialiser
+    """)
     if r != 0:
         raise Exception(
             f"Error building: {component_name} for board: {board.name} config: {config.name}"
